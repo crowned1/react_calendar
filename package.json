@@ -1,0 +1,38 @@
+{
+  "name": "discussion-board-express",
+  "description": "Sample Express Application to test out using Package.json to install dependencies",
+  "engines": {
+    "node": "v4.4.5",
+    "npm": "2.15.5"
+  },
+  "dependencies": {
+    "axios": "^0.13.1",
+    "babel-core": "^6.10.4",
+    "babel-loader": "^6.2.4",
+    "babel-preset-react": "^6.11.1",
+    "bcryptjs": "^2.3.0",
+    "body-parser": "^1.15.1",
+    "client-sessions": "^0.7.0",
+    "ejs": "1.0.0",
+    "express": "~4.10.0",
+    "express-session": "^1.14.0",
+    "moment": "^2.14.1",
+    "mongoose": "^4.4.20",
+    "react": "^15.2.1",
+    "react-datepicker": "^0.29.0",
+    "react-dnd": "^2.1.4",
+    "react-dnd-html5-backend": "^2.1.2",
+    "react-dom": "^15.2.1",
+    "react-router": "^2.6.0",
+    "socket.io": "^1.4.6",
+    "webpack": "^1.13.1"
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "version": "1.0.0",
+  "main": "server.js",
+  "devDependencies": {},
+  "author": "brandon-s",
+  "license": "MIT"
+}
