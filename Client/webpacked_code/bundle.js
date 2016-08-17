@@ -116,8 +116,8 @@
 	// COMPONENTS
 	var Heading_Component = __webpack_require__(470);
 	var Day_Component = __webpack_require__(471);
-	var Calendar_Component = __webpack_require__(474);
-	var Event_Selector_Component = __webpack_require__(477);
+	var Calendar_Component = __webpack_require__(476);
+	var Event_Selector_Component = __webpack_require__(478);
 
 	ReactDOM.render(React.createElement(App, null), document.getElementById('app'));
 
@@ -56705,11 +56705,11 @@
 	    month[10] = "November";
 	    month[11] = "December";
 	    var n = month[d.getMonth()];
-	    console.log(n);
 	    return n;
 	  },
 	  build_calendar: function (date) {
 	    //set the date to the 1st
+	    var param = date;
 	    date.setDate(1);
 	    //turn the date into a string
 	    calendar_start = date.toString();
@@ -56792,8 +56792,7 @@
 	    }
 	    //add days to calendar
 	    for (var j = 1; j <= days_in_month; j++) {
-	      date.setDate(j);
-	      calendar.push({ day_num: j, date: date });
+	      calendar.push({ day_num: j, date: new Date(param.setDate(j)) });
 	    }
 	    //add remaining empty days to finish calendar
 	    calendar_length = calendar.length;
@@ -56840,18 +56839,97 @@
 	    } else {
 	      current = day_name + " " + day_month + " " + day_number + "th";
 	    }
-
 	    var day = [];
-	    for (var i = 1; i <= 24; i++) {
+	    for (var i = 0; i <= 23; i++) {
 	      hour = i + ":" + "00";
-	      day.push({ hour: hour });
+	      day.push({ hour: hour, date: date.toDateString() });
 	    }
 	    return {
 	      Current: current,
 	      Hours: day
 	    };
-	  }
+	  },
+	  time_to_length: function (start, end) {
+	    start_time = start.split(":");
+	    start_hour = parseInt(start_time[0]);
+	    start_minutes = parseInt(start_time[1]);
+	    measure_top = (start_hour * 60 + start_minutes) / 60 * (100 / 24);
 
+	    end_time = end.split(":");
+	    end_hour = parseInt(end_time[0]);
+	    end_minutes = parseInt(end_time[1]);
+	    height = ((end_hour - start_hour) * 60 + (end_minutes - start_minutes)) / 60 * (100 / 24);
+
+	    return {
+	      top: measure_top,
+	      height: height
+	    };
+	  },
+	  collision_detection: function (current, new_event) {
+	    for (var i = 0; i < current.length; i++) {
+	      current_height = parseInt(current[i].height.substring(0, current[i].height.length - 1));
+	      current_top = parseInt(current[i].top.substring(0, current[i].top.length - 1));
+	      current_bottom = current_top + current_height;
+	      new_bottom = new_event.top + new_event.height;
+	      if (new_event.top >= current_top && new_event.top < current_bottom) {
+	        return false;
+	      } else if (new_bottom < current_top) {
+	        return false;
+	      }
+	    }
+	    return true;
+	  },
+	  place_event: function (event1, event2, event3, event4, event5, style, data) {
+	    var event_rows = [event1, event2, event3, event4, event5];
+	    if (event_rows[0].length == 0) {
+	      events = event_rows[0];
+	      events.push({ name: data.type, color: data.color, height: style.height + "%", top: style.top + "%" });
+	      return { events: events, row_num: 1 };
+	    } else {
+	      row_num = 0;
+	      for (var z = 0; z < event_rows.length; z++) {
+	        row_num++;
+	        if (event_rows[z].length == 0) {
+	          events = event_rows[z];
+	          events.push({ name: data.type, color: data.color, height: style.height + "%", top: style.top + "%" });
+	          return { events: events, row_num: row_num };
+	        } else if (this.collision_detection(event_rows[z], style)) {
+	          console.log(events);
+	          events = event_rows[z];
+	          events.push({ name: data.type, color: data.color, height: style.height + "%", top: style.top + "%" });
+	          return { events: events, row_num: row_num };
+	        }
+	      }
+	    }
+	  },
+	  fill_events_day: function (arr_events) {
+	    //variable being declared for the first time, no other variables with the same name anywhere else in code.
+	    var _events1 = [];
+	    var _events2 = [];
+	    var _events3 = [];
+	    var _events4 = [];
+	    var _events5 = [];
+	    //checking to make sure its declared correctly
+	    console.log(_events1);
+	    //its already got an infinite loop of objects in it??
+	    for (var x = 0; x < arr_events.length; x++) {
+	      style = Functions.time_to_length(arr_events[x].start_hour, arr_events[x].end_hour);
+	      results = Functions.place_event(_events1, _events2, _events3, _events4, _events5, style, arr_events[x]);
+	      if (results.row_num == 1) {
+	        _events1.push({ events_1: results.events });
+	      } else if (results.row_num == 2) {
+	        _events2.push({ events_2: results.events });
+	      } else if (results.row_num == 3) {
+	        _events3.push({ events_3: results.events });
+	      } else if (results.row_num == 4) {
+	        _events4.push({ events_4: results.events });
+	      } else if (results.row_num == 5) {
+	        _events5.push({ events_5: results.events });
+	      }
+	    }
+	    return { event1: _events1, event2: _events2, event3: _events3, event4: _events4, event5: _events5 };
+	  },
+	  fill_events_month: function (arr_events) {}
 	};
 
 /***/ },
@@ -56882,11 +56960,6 @@
 	            { to: 'day_view' },
 	            'Login'
 	          )
-	        ),
-	        React.createElement(
-	          'a',
-	          { href: '/register_view' },
-	          'Dont have an account? Register Here'
 	        )
 	      )
 	    );
@@ -56899,7 +56972,7 @@
 
 	var Hour = __webpack_require__(472);
 	var Functions = __webpack_require__(469);
-	var Modal_Event_Form = __webpack_require__(473);
+	var Stretch_Event = __webpack_require__(475);
 
 	module.exports = React.createClass({
 	  displayName: 'exports',
@@ -56910,15 +56983,86 @@
 	    return {
 	      current_day: day.Current,
 	      day: day.Hours,
-	      startDate: moment()
+	      startDate: moment(),
+	      events_1: [],
+	      events_2: [],
+	      events_3: [],
+	      events_4: [],
+	      events_5: []
 	    };
+	  },
+	  componentDidMount: function () {
+	    update_events = function (data, state) {
+	      style = Functions.time_to_length(data.start_hour, data.end_hour);
+	      results = Functions.place_event(state.state.events_1, state.state.events_2, state.state.events_3, state.state.events_4, state.state.events_5, style, data);
+	      if (results.row_num == 1) {
+	        state.setState({ events_1: results.events });
+	      } else if (results.row_num == 2) {
+	        state.setState({ events_2: results.events });
+	      } else if (results.row_num == 3) {
+	        state.setState({ events_3: results.events });
+	      } else if (results.row_num == 4) {
+	        state.setState({ events_4: results.events });
+	      } else if (results.row_num == 5) {
+	        state.setState({ events_5: results.events });
+	      }
+	    };
+	    populate_events = function (callback, state) {
+	      for (var k = 0; k < callback.length; k++) {
+	        console.log('here');
+	        update_events(callback[k], state);
+	      }
+	    };
+	    get_response = function (callback, state, request_date) {
+	      console.log(request_date);
+	      axios.post('/events/day', { date: request_date }).then(function (res) {
+	        console.log(res.data);
+	        callback(res.data, state);
+	      });
+	    };
+	    get_response(populate_events, this, date);
 	  },
 	  dateChange: function (date) {
 	    day = Functions.build_day(date);
 	    this.setState({
 	      current_day: day.Current,
-	      day: day.Hours
+	      day: day.Hours,
+	      events_1: [],
+	      events_2: [],
+	      events_3: [],
+	      events_4: [],
+	      events_5: []
 	    });
+	    update_events = function (data, state) {
+	      style = Functions.time_to_length(data.start_hour, data.end_hour);
+	      results = Functions.place_event(state.state.events_1, state.state.events_2, state.state.events_3, state.state.events_4, state.state.events_5, style, data);
+	      console.log(results);
+	      if (results.row_num == 1) {
+	        state.setState({ events_1: results.events });
+	      } else if (results.row_num == 2) {
+	        state.setState({ events_2: results.events });
+	      } else if (results.row_num == 3) {
+	        state.setState({ events_3: results.events });
+	      } else if (results.row_num == 4) {
+	        state.setState({ events_4: results.events });
+	      } else if (results.row_num == 5) {
+	        state.setState({ events_5: results.events });
+	      }
+	    };
+	    populate_events = function (callback, state) {
+	      for (var k = 0; k < callback.length; k++) {
+	        console.log('here');
+	        update_events(callback[k], state);
+	      }
+	    };
+	    get_response = function (callback, state, request_date) {
+	      console.log(request_date);
+	      axios.post('/events/day', { date: request_date }).then(function (res) {
+	        console.log(res.data);
+	        callback(res.data, state);
+	      });
+	    };
+	    get_response(populate_events, this, date);
 	  },
 	  handleChange: function (date) {
 	    this.dateChange(date.toDate());
@@ -56942,11 +57086,30 @@
 	    this.setState({ startDate: next_day });
 	    this.dateChange(next_day.toDate());
 	  },
+	  saveEvent: function (data) {
+
+	    axios.post('/event', { data }).then(function (response) {
+	      console.log(response);
+	    });
+
+	    style = Functions.time_to_length(data.start_hour, data.end_hour);
+	    results = Functions.place_event(this.state.events_1, this.state.events_2, this.state.events_3, this.state.events_4, this.state.events_5, style, data);
+	    if (results.row_num == 1) {
+	      this.setState({ events_1: results.events });
+	    } else if (results.row_num == 2) {
+	      this.setState({ events_2: results.events });
+	    } else if (results.row_num == 3) {
+	      this.setState({ events_3: results.events });
+	    } else if (results.row_num == 4) {
+	      this.setState({ events_4: results.events });
+	    } else if (results.row_num == 5) {
+	      this.setState({ events_5: results.events });
+	    }
+	  },
 	  render: function () {
 	    return React.createElement(
 	      'div',
 	      { id: 'calendar' },
-	      React.createElement(Modal_Event_Form, null),
 	      React.createElement(
 	        'div',
 	        { className: 'navigation_container' },
@@ -57005,8 +57168,72 @@
 	        'div',
 	        { className: 'day_view_container' },
 	        this.state.day.map(function (hour, i) {
-	          return React.createElement(Hour, { key: i, hour: hour.hour });
-	        })
+	          if (hour.hour == "0:00") {
+	            return React.createElement(Hour, { hour_zero: 'true', saveEvent: this.saveEvent, key: i, current: hour.date, hour: hour.hour });
+	          } else {
+	            return React.createElement(Hour, { saveEvent: this.saveEvent, key: i, current: hour.date, hour: hour.hour });
+	          }
+	        }, this),
+	        React.createElement(
+	          'div',
+	          { className: 'events_container' },
+	          React.createElement('div', { className: 'col-xs-2' }),
+	          React.createElement(
+	            'div',
+	            { className: 'col-xs-2 event_row' },
+	            React.createElement(
+	              'div',
+	              { id: 'event_1' },
+	              this.state.events_1.map(function (event, i) {
+	                return React.createElement(Stretch_Event, { type: event.name, color: event.color, height: event.height, top: event.top, key: i });
+	              })
+	            )
+	          ),
+	          React.createElement(
+	            'div',
+	            { className: 'col-xs-2 event_row' },
+	            React.createElement(
+	              'div',
+	              { id: 'event_2' },
+	              this.state.events_2.map(function (event, i) {
+	                return React.createElement(Stretch_Event, { type: event.name, color: event.color, height: event.height, top: event.top, key: i });
+	              })
+	            )
+	          ),
+	          React.createElement(
+	            'div',
+	            { className: 'col-xs-2 event_row' },
+	            React.createElement(
+	              'div',
+	              { id: 'event_3' },
+	              this.state.events_3.map(function (event, i) {
+	                return React.createElement(Stretch_Event, { type: event.name, color: event.color, height: event.height, top: event.top, key: i });
+	              })
+	            )
+	          ),
+	          React.createElement(
+	            'div',
+	            { className: 'col-xs-2 event_row' },
+	            React.createElement(
+	              'div',
+	              { id: 'event_4' },
+	              this.state.events_4.map(function (event, i) {
+	                return React.createElement(Stretch_Event, { type: event.name, color: event.color, height: event.height, top: event.top, key: i });
+	              })
+	            )
+	          ),
+	          React.createElement(
+	            'div',
+	            { className: 'col-xs-2 event_row' },
+	            React.createElement(
+	              'div',
+	              { id: 'event_5' },
+	              this.state.events_5.map(function (event, i) {
+	                return React.createElement(Stretch_Event, { type: event.name, color: event.color, height: event.height, top: event.top, key: i });
+	              })
+	            )
+	          )
+	        )
 	      )
 	    );
 	  }
@@ -57014,30 +57241,59 @@
 
 /***/ },
 /* 472 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
+
+	var Modal_Event_Form = __webpack_require__(473);
+	var Event = __webpack_require__(474);
 
 	module.exports = React.createClass({
-	  displayName: "exports",
+	  displayName: 'exports',
 
+	  getInitialState: function () {
+	    return {
+	      modal: "none",
+	      hour: this.props.hour
+	    };
+	  },
 	  handleDragOver: function (e) {
 	    e.preventDefault();
 	  },
 	  handleOnDrop: function (e) {
 	    e.preventDefault();
-	    var color_data = e.dataTransfer.getData("color");
-	    e.target.style.backgroundColor = color_data;
-	    document.getElementById('event_modal').style.display = "block";
+	    this.setState({ modal: "block" });
+	    this.state.color = e.dataTransfer.getData("bgColor");
+	    this.state.type = e.dataTransfer.getData("type");
+	  },
+	  close_modal: function (e) {
+	    this.setState({ modal: "none" });
+	  },
+	  saveEvent: function (data) {
+	    this.props.saveEvent(data);
 	  },
 	  render: function () {
-	    return React.createElement(
-	      "div",
-	      { onDragOver: this.handleDragOver, onDrop: this.handleOnDrop, className: "hour_container" },
-	      React.createElement(
-	        "span",
-	        { className: "time" },
-	        this.props.hour
-	      )
-	    );
+	    if (this.props.hour_zero == "true") {
+	      return React.createElement(
+	        'div',
+	        { onDragOver: this.handleDragOver, onDrop: this.handleOnDrop, className: 'hour_container' },
+	        React.createElement(Modal_Event_Form, { end_date: this.props.current, start_date: this.props.current, hour: this.state.hour, color: this.state.color, type: this.state.type, close_modal: this.close_modal, display: this.state.modal, saveEvent: this.saveEvent }),
+	        React.createElement(
+	          'span',
+	          { style: { display: "none" }, className: 'time' },
+	          this.props.hour
+	        )
+	      );
+	    } else {
+	      return React.createElement(
+	        'div',
+	        { onDragOver: this.handleDragOver, onDrop: this.handleOnDrop, className: 'hour_container' },
+	        React.createElement(Modal_Event_Form, { end_date: this.props.current, start_date: this.props.current, hour: this.props.hour, color: this.state.color, type: this.state.type, close_modal: this.close_modal, display: this.state.modal, saveEvent: this.saveEvent }),
+	        React.createElement(
+	          'span',
+	          { className: 'time' },
+	          this.props.hour
+	        )
+	      );
+	    }
 	  }
 	});
 
@@ -57048,23 +57304,52 @@
 	module.exports = React.createClass({
 	  displayName: 'exports',
 
-	  close_modal: function (e) {
-	    var modal = document.getElementById('event_modal');
-	    var modal_close = document.getElementsByClassName('close')[0];
-	    if (e.target == modal || e.target == modal_close) {
-	      modal.style.display = "none";
+	  getInitialState: function () {
+	    return {
+	      name: "",
+	      start_date: '',
+	      end_date: '',
+	      end_hour: '',
+	      location: "",
+	      description: "",
+	      start_hour: ''
+	    };
+	  },
+	  componentWillReceiveProps: function (nextProps) {
+	    if (nextProps.hour) {
+	      this.setState({ end_hour: (parseInt(this.props.hour[0] + this.props.hour[1]) + 1).toString() + ":00" });
+	    } else {
+	      this.setState({ end_hour: "9:00" });
+	    };
+	    if (nextProps.hour) {
+	      this.setState({ start_hour: nextProps.hour });
+	    } else {
+	      this.setState({ start_hour: "8:00" });
+	    };
+	    var temp_date;
+	    if (nextProps.date) {
+	      this.setState({ start_date: nextProps.date.toString().substring(0, 15) });
+	      this.setState({ end_date: nextProps.date.toString().substring(0, 15) });
+	    } else {
+	      this.setState({ start_date: nextProps.start_date.toString().substring(0, 15) });
+	      this.setState({ end_date: nextProps.start_date.toString().substring(0, 15) });
 	    }
+	  },
+	  handleChange: function (name, event) {
+	    var change = {};
+	    change[name] = event.target.value;
+	    this.setState(change);
 	  },
 	  render: function () {
 	    return React.createElement(
 	      'div',
-	      { id: 'event_modal', className: 'modal' },
+	      { id: 'event_modal', className: 'modal', style: { display: this.props.display } },
 	      React.createElement(
 	        'div',
 	        { className: 'event_modal_form' },
 	        React.createElement(
 	          'span',
-	          { onClick: this.close_modal, className: 'close' },
+	          { onClick: this.props.close_modal, className: 'close' },
 	          'X'
 	        ),
 	        React.createElement(
@@ -57075,7 +57360,6 @@
 	        React.createElement(
 	          'form',
 	          { className: 'event_form' },
-	          React.createElement('input', { id: 'event_form_event_id', type: 'hidden' }),
 	          React.createElement(
 	            'div',
 	            { className: 'form-group' },
@@ -57084,7 +57368,7 @@
 	              null,
 	              'Event Name:'
 	            ),
-	            React.createElement('input', { className: 'form-control', type: 'text' })
+	            React.createElement('input', { className: 'form-control', type: 'text', value: this.state.name, onChange: this.handleChange.bind(this, 'name') })
 	          ),
 	          React.createElement(
 	            'div',
@@ -57094,7 +57378,7 @@
 	              null,
 	              'Event Type:'
 	            ),
-	            React.createElement('input', { id: 'event_form_event_type', className: 'form-control', type: 'text' })
+	            React.createElement('input', { id: 'event_form_event_type', className: 'form-control', type: 'text', value: this.props.type, disabled: true })
 	          ),
 	          React.createElement(
 	            'div',
@@ -57104,7 +57388,7 @@
 	              null,
 	              'Event Color:'
 	            ),
-	            React.createElement('input', { id: 'event_form_event_color', className: 'form-control', type: 'text' })
+	            React.createElement('input', { id: 'event_form_event_color', className: 'form-control', type: 'text', value: this.props.color, disabled: true })
 	          ),
 	          React.createElement(
 	            'div',
@@ -57112,9 +57396,9 @@
 	            React.createElement(
 	              'label',
 	              null,
-	              'Start:'
+	              'Start Date:'
 	            ),
-	            React.createElement('input', { id: 'event_form_event_start', className: 'form-control', type: 'text' })
+	            React.createElement('input', { id: 'event_form_event_start', className: 'form-control', type: 'text', value: this.state.start_date, onChange: this.handleChange.bind(this, 'start_date') })
 	          ),
 	          React.createElement(
 	            'div',
@@ -57122,9 +57406,29 @@
 	            React.createElement(
 	              'label',
 	              null,
-	              'End:'
+	              'Start Time:'
 	            ),
-	            React.createElement('input', { id: 'event_form_event_end', className: 'form-control', type: 'text' })
+	            React.createElement('input', { id: 'event_form_event_hour', className: 'form-control', type: 'text', value: this.state.start_hour, onChange: this.handleChange.bind(this, 'start_hour') })
+	          ),
+	          React.createElement(
+	            'div',
+	            { className: 'form-group' },
+	            React.createElement(
+	              'label',
+	              null,
+	              'End Date:'
+	            ),
+	            React.createElement('input', { id: 'event_form_event_end', className: 'form-control', type: 'text', value: this.state.end_date, onChange: this.handleChange.bind(this, 'end_date') })
+	          ),
+	          React.createElement(
+	            'div',
+	            { className: 'form-group' },
+	            React.createElement(
+	              'label',
+	              null,
+	              'End Hour:'
+	            ),
+	            React.createElement('input', { id: 'event_form_event_end', className: 'form-control', type: 'text', value: this.state.end_hour, onChange: this.handleChange.bind(this, 'end_hour') })
 	          ),
 	          React.createElement(
 	            'div',
@@ -57134,7 +57438,7 @@
 	              null,
 	              'Event Location:'
 	            ),
-	            React.createElement('input', { className: 'form-control', type: 'text' })
+	            React.createElement('input', { className: 'form-control', type: 'text', value: this.state.location, onChange: this.handleChange.bind(this, 'location') })
 	          ),
 	          React.createElement(
 	            'div',
@@ -57144,9 +57448,21 @@
 	              null,
 	              'Event Description:'
 	            ),
-	            React.createElement('textarea', { className: 'form-control' })
+	            React.createElement('textarea', { className: 'form-control', value: this.state.description, onChange: this.handleChange.bind(this, 'description') })
 	          ),
-	          React.createElement('button', { onClick: () => this.props.saveEvent({ name: 10 }), type: 'button', className: 'btn btn-primary glyphicon glyphicon-save' })
+	          React.createElement('button', { onClick: () => {
+	              this.props.saveEvent({
+	                name: this.state.name,
+	                type: this.props.type,
+	                color: this.props.color,
+	                start_date: this.state.start_date,
+	                start_hour: this.state.start_hour,
+	                end_date: this.state.end_date,
+	                end_hour: this.state.end_hour,
+	                location: this.state.location,
+	                description: this.state.description
+	              });this.props.close_modal();
+	            }, type: 'button', className: 'btn btn-primary glyphicon glyphicon-save' })
 	        )
 	      )
 	    );
@@ -57155,11 +57471,53 @@
 
 /***/ },
 /* 474 */
+/***/ function(module, exports) {
+
+	module.exports = React.createClass({
+	  displayName: 'exports',
+
+	  render: function () {
+	    if (this.props.view == 'day') {
+	      return React.createElement(
+	        'div',
+	        { className: 'event' },
+	        React.createElement('div', { style: { backgroundColor: this.props.color }, className: 'color_label_day' }),
+	        React.createElement(
+	          'span',
+	          { className: 'event_day' },
+	          this.props.name
+	        )
+	      );
+	    }
+	  }
+	});
+
+/***/ },
+/* 475 */
+/***/ function(module, exports) {
+
+	module.exports = React.createClass({
+	  displayName: 'exports',
+
+	  render: function () {
+	    return React.createElement(
+	      'div',
+	      { className: 'stretch_event', style: { backgroundColor: this.props.color, top: this.props.top, height: this.props.height } },
+	      React.createElement(
+	        'span',
+	        { className: 'stretch_event_title' },
+	        this.props.type
+	      )
+	    );
+	  }
+	});
+
+/***/ },
+/* 476 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Day = __webpack_require__(475);
+	var Day = __webpack_require__(477);
 	var Functions = __webpack_require__(469);
-	var Modal_Event_Form = __webpack_require__(473);
 
 	module.exports = React.createClass({
 	  displayName: 'exports',
@@ -57173,6 +57531,29 @@
 	      startDate: moment()
 	    };
 	  },
+	  componentWillMount: function () {
+	    var results;
+	    set_days = function (callback, obj, request_date) {
+	      axios.post('/events/calendar', { date: request_date }).then(function (res) {
+	        results = res.data;
+	        current = obj.state.Days;
+	        for (var i = 0; i < current.length; i++) {
+	          var temp = [];
+	          for (var u = 0; u < results.length; u++) {
+	            if (results[u].start_date.substring(8, 10) == current[i].day_num) {
+	              temp.push(results[u]);
+	            }
+	          }
+	          current[i].events = temp;
+	        }
+	        callback(current, obj);
+	      });
+	    };
+	    callback_function = function (callback, obj) {
+	      obj.setState({ Days: callback });
+	    };
+	    set_days(callback_function, this, date);
+	  },
 	  handleChange: function (date) {
 	    this.calendarChange(date.toDate());
 	    this.setState({
@@ -57185,9 +57566,27 @@
 	      Days: calendar.Days,
 	      Name: calendar.Name
 	    });
-	  },
-	  saveEvent: function (data) {
-	    console.log(data);
+	    var results;
+	    set_days = function (callback, obj, request_date) {
+	      axios.post('/events/calendar', { date: request_date }).then(function (res) {
+	        results = res.data;
+	        current = obj.state.Days;
+	        for (var i = 0; i < current.length; i++) {
+	          var temp = [];
+	          for (var u = 0; u < results.length; u++) {
+	            if (results[u].start_date.substring(8, 10) == current[i].day_num) {
+	              temp.push(results[u]);
+	            }
+	          }
+	          current[i].events = temp;
+	        }
+	        callback(current, obj);
+	      });
+	    };
+	    callback_function = function (callback, obj) {
+	      obj.setState({ Days: callback });
+	    };
+	    set_days(callback_function, this, date);
 	  },
 	  redirect_month: function () {
 	    hashHistory.push('/month_view');
@@ -57209,7 +57608,6 @@
 	    return React.createElement(
 	      'div',
 	      { id: 'calendar' },
-	      React.createElement(Modal_Event_Form, { saveEvent: this.saveEvent }),
 	      React.createElement(
 	        'div',
 	        { className: 'navigation_container' },
@@ -57221,8 +57619,8 @@
 	            { className: 'datepicker_container' },
 	            React.createElement(
 	              'label',
-	              null,
-	              'Date'
+	              { className: 'date_label' },
+	              'Date: '
 	            ),
 	            React.createElement(DatePicker, { selected: this.state.startDate, onChange: this.handleChange })
 	          ),
@@ -57269,95 +57667,11 @@
 	        { className: 'calendar_container' },
 	        this.state.Days.map(function (day, i) {
 	          if (day.day_num == 0) {
-	            return React.createElement(Day, { key: i, day_num: day.day_num, display: 'false' });
+	            return React.createElement(Day, { events: day.events, key: i, day_num: day.day_num, display: 'false' });
 	          } else {
-	            return React.createElement(Day, { identity: i, key: i, day_num: day.day_num, date: day.date });
+	            return React.createElement(Day, { events: day.events, identity: i, key: i, day_num: day.day_num, date: day.date });
 	          }
 	        })
-	      )
-	    );
-	  }
-	});
-
-/***/ },
-/* 475 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var Event = __webpack_require__(476);
-
-	module.exports = React.createClass({
-	  displayName: "exports",
-
-	  getInitialState: function () {
-	    date_1 = new Date();
-	    date_2 = new Date();
-	    return {
-	      Events: [{ name: "Work", start_date: date_1, end_date: date_2, color: "blue" }]
-	    };
-	  },
-	  handleDragOver: function (e) {
-	    e.preventDefault();
-	  },
-	  handleOnDrop: function (e) {
-	    e.preventDefault();
-	    var bgColor = e.dataTransfer.getData("bgColor");
-	    var type = e.dataTransfer.getData("type");
-	    document.getElementById('event_modal').style.display = "block";
-	    document.getElementById('event_form_event_type').value = type;
-	    document.getElementById('event_form_event_color').value = bgColor;
-	    document.getElementById('event_form_event_start').value = this.props.date.toDateString();
-	    document.getElementById('event_form_event_id').value = this.props.identity;
-	  },
-	  addEvent: function () {
-	    events = this.state.Events;
-	    events.push({ name: "Play", start_date: date_1, end_date: date_2, color: "yellow" });
-	    this.setState({ Events: events });
-	  },
-	  render: function () {
-	    if (this.props.display == "false") {
-	      return React.createElement(
-	        "div",
-	        { className: "day" },
-	        React.createElement(
-	          "span",
-	          { style: { visibility: "hidden" } },
-	          "Open"
-	        ),
-	        React.createElement("div", { id: "event_container" })
-	      );
-	    } else {
-	      return React.createElement(
-	        "div",
-	        { onDragOver: this.handleDragOver, onDrop: this.handleOnDrop, className: "day" },
-	        React.createElement(
-	          "span",
-	          { className: "day_num" },
-	          this.props.day_num
-	        ),
-	        this.state.Events.map(function (event, i) {
-	          return React.createElement(Event, { name: event.name, start_date: event.start_date, end_date: event.end_date, color: event.color, key: i });
-	        })
-	      );
-	    }
-	  }
-	});
-
-/***/ },
-/* 476 */
-/***/ function(module, exports) {
-
-	module.exports = React.createClass({
-	  displayName: 'exports',
-
-	  render: function () {
-	    return React.createElement(
-	      'div',
-	      { className: 'event' },
-	      React.createElement('div', { style: { backgroundColor: this.props.color }, className: 'color_label' }),
-	      React.createElement(
-	        'span',
-	        { className: 'event_name' },
-	        this.props.name
 	      )
 	    );
 	  }
@@ -57367,14 +57681,92 @@
 /* 477 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Color_Selector = __webpack_require__(478);
+	var Event = __webpack_require__(474);
+	var Modal_Event_Form = __webpack_require__(473);
+
+	module.exports = React.createClass({
+	  displayName: 'exports',
+
+	  getInitialState: function () {
+	    date_1 = new Date();
+	    date_2 = new Date();
+	    return {
+	      Events: [],
+	      modal: "none"
+	    };
+	  },
+	  componentWillReceiveProps: function (nextProps) {
+	    if (nextProps.events) {
+	      this.setState({
+	        Events: nextProps.events
+	      });
+	    }
+	  },
+	  handleDragOver: function (e) {
+	    e.preventDefault();
+	  },
+	  handleOnDrop: function (e) {
+	    e.preventDefault();
+	    this.setState({ modal: "block" });
+	    this.state.color = e.dataTransfer.getData("bgColor");
+	    this.state.type = e.dataTransfer.getData("type");
+	  },
+	  close_modal: function (e) {
+	    this.setState({ modal: "none" });
+	  },
+	  saveEvent: function (data) {
+	    this.setState({ modal: "none" });
+
+	    axios.post('/event', { data }).then(function (response) {
+	      console.log(response);
+	    });
+
+	    events = this.state.Events;
+	    events.push({ name: data.type, start_date: date_1, end_date: date_2, color: data.color });
+	    this.setState({ Events: events });
+	  },
+	  render: function () {
+	    if (this.props.display == "false") {
+	      return React.createElement(
+	        'div',
+	        { className: 'day' },
+	        React.createElement(
+	          'span',
+	          { style: { visibility: "hidden" } },
+	          'Open'
+	        ),
+	        React.createElement('div', { id: 'event_container' })
+	      );
+	    } else {
+	      return React.createElement(
+	        'div',
+	        { onDragOver: this.handleDragOver, onDrop: this.handleOnDrop, className: 'day' },
+	        React.createElement(Modal_Event_Form, { day_num: this.props.day_num, date: this.props.date, color: this.state.color, type: this.state.type, close_modal: this.close_modal, display: this.state.modal, saveEvent: this.saveEvent }),
+	        React.createElement(
+	          'span',
+	          { className: 'day_num' },
+	          this.props.day_num
+	        ),
+	        this.state.Events.map(function (event, i) {
+	          return React.createElement(Event, { view: 'day', name: event.name, start_date: event.start_date, end_date: event.end_date, color: event.color, key: i });
+	        })
+	      );
+	    }
+	  }
+	});
+
+/***/ },
+/* 478 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Color_Selector = __webpack_require__(479);
 
 	module.exports = React.createClass({
 	  displayName: 'exports',
 
 	  getInitialState: function () {
 	    return {
-	      Colors: [{ color: 'red', type: 'Exercise' }, { color: 'blue', type: 'Eat' }, { color: 'green', type: 'Sleep' }, { color: 'yellow', type: 'Vacation' }, { color: 'orange', type: 'Meditation' }, { color: 'purple', type: 'Bill' }]
+	      Colors: [{ color: '#B7472C', type: 'Exercise' }, { color: '#2658B5', type: 'Eat' }, { color: '#4E9642', type: 'Sleep' }, { color: '#D6D335', type: 'Vacation' }, { color: '#DD8E39', type: 'Meditation' }, { color: '#8035D6', type: 'Bill' }]
 	    };
 	  },
 	  render: function () {
@@ -57389,7 +57781,7 @@
 	});
 
 /***/ },
-/* 478 */
+/* 479 */
 /***/ function(module, exports) {
 
 	module.exports = React.createClass({

@@ -2,15 +2,22 @@
     display: none;
 }
 body{
-    padding: 1%;
+    padding: .5%;
 }
 
 /*HEADER COMPONENT*/
 .heading_container{
+  border-radius: 999px;
+  margin-bottom: 1%;
+  box-shadow: 1em .6em 2em .2em #483351;
+  border: .5em solid #483351;
   height: 100px;
   width: 100%;
   display: flex;
   position: relative;
+	background-image: url('map.jpg');
+	background-position: center center;
+	background-size: cover;
 }
 .heading_container >img{
   display: inline-block;
@@ -31,6 +38,17 @@ body{
   text-align: center;
   justify-content: center;
 }
+button{
+  border-radius: 200%;
+  background-color: #232321;
+  border: .15em solid #f0d9c9;
+}
+a{
+  color: white;
+}
+a:hover{
+  color: white;
+}
 .heading_container > div > button{
   font-size: 1.5em;
   padding: 5% 10%;
@@ -45,22 +63,33 @@ body{
 }
 
     /*NAVIGATION COMPONENT*/
+    .datepicker_container{
+      padding-top: 2%;
+    }
     .navigation_container > .col-xs-4 {
       text-align: center;
     }
     .navigation_container > div > ul{
       padding: 0;
-      margin-top: 5%;
+      margin-top: 2%;
+    }
+    .date_label{
+      margin-right: 1%;
     }
     .navigation_container > div > ul > li{
       display: inline-block;
       list-style-type: none;
       padding: 2% 4%;
       border: 1px solid black;
+      border-radius: 999px;
+      margin: 1% 2%;
+      box-shadow: .8em .6em .1em .1em #483351;
     }
     #calendar_month{
       display: flex;
       text-align: center;
+      flex-flow: row nowrap; /* Align on the same line */
+      justify-content: space-between; /* Equal margin between the child elements */
     }
     .arrow-left{
       display: inline-block;
@@ -87,10 +116,12 @@ body{
 
     /*CALENDAR COMPONENT*/
     .calendar_container{
-      width: 80%;
+      width: 85%;
       height: 80%;
       vertical-align: top;
       display: inline-block;
+      box-shadow: .3em 1em 3em .3em #483351;
+      overflow-y: scroll;
     }
     .day{
       height: 20%;
@@ -102,34 +133,41 @@ body{
       overflow-y: scroll;
     }
     .day_num{
+      font-size: 1.6em;
       font-weight: bold;
+      padding: 0em 0em .4em .4em;
+    }
+    .event{
+      padding-left: 5%;
     }
 
     /*EVENT COMPONENT*/
-    .color_label{
+    .color_label_day{
       margin-left: 5%;
       height: 5%;
       display: inline;
       width: 5%;
       padding-left: 10%;
+      border-radius: 999px;
     }
-    .event_name{
+    .event_day{
       font-weight: bold;
       padding-left: 5%;
     }
 
     /*EVENT SELECTOR COMPONENT*/
     .event_selector_container{
-      width: 20%;
+      width: 15%;
       height: 80%;
       display: inline-block;
       overflow-y: scroll;
     }
     .color_select{
-      height: 30%;
+      box-shadow: .3em 1em 2em .1em #483351;
+      height: 20%;
       width: 80%;
       display: table;
-      border: 1px solid black;
+      border: .3em solid #483351;
       margin: 10%;
       border-radius: 100%;
     }
@@ -141,16 +179,19 @@ body{
     .color_text{
       font-size: 2em;
       font-weight: bold;
+      color: #F9F9FA;
     }
 
     /*DAY VIEW COMPONENT*/
     .day_view_container{
-      width: 80%;
+      width: 85%;
       height: 80%;
       vertical-align: top;
       display: inline-block;
       border: 1px solid black;
       overflow-y: scroll;
+      position: relative;
+      box-shadow: .3em 1em 3em .3em #483351;
     }
     #current_day{
       font-size: 2.5em;
@@ -160,13 +201,45 @@ body{
       width: 100%;
       border-bottom: 1px solid black;
       line-height: 25%;
-      display: flex;
       align-items: center; /* align vertical */
     }
     .time{
+      background-color: white;
+      padding: 1%;
       font-size: 1.5em;
       font-weight: bold;
       margin-left: 2%;
+    }
+
+    /*EVENTSOVERLAY*/
+    .events_container{
+      position: absolute;
+      height: 600%;
+      width: 100%;
+      top: 0;
+      left: 0;
+      overflow-y: scroll;
+      z-index: -1;
+    }
+    .event_row{
+      height: 100%;
+      z-index: -1;
+    }
+    .stretch_event{
+      position: absolute;
+      left: 0;
+      width: 100%;
+      text-align: center;
+      border: 1px solid black;
+      z-index: -1;
+      border-radius: .8em;
+    }
+    .stretch_event_title{
+      font-weight: bold;
+      color: white;
+      font-size: 3em;
+      padding-top: 20px;
+      z-index: -1;
     }
 
 /*MODAL EVENT FORM*/
@@ -183,15 +256,21 @@ body{
     background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
 }
 /* Modal Content/Box */
+.event_form{
+  display: block;
+  margin: 2%;
+}
 .event_modal_form {
     background-color: #fefefe;
-    margin: 15% auto; /* 15% from the top and centered */
-    padding: 20px;
+    margin: 3% auto;
+    padding: 1%;
     border: 1px solid #888;
     width: 80%; /* Could be more or less, depending on screen size */
 }
 .event_modal_form > .model_header{
+  display: block;
   font-size: 2.5em;
+  margin: 2%;
 }
 /* The Close Button */
 .close {

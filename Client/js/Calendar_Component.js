@@ -1,6 +1,5 @@
 var Day = require('./Day.js');
 var Functions = require('./functions.js');
-var Modal_Event_Form = require('./Modal_Event_Form.js');
 
 module.exports = React.createClass({
   getInitialState: function(){
@@ -12,11 +11,35 @@ module.exports = React.createClass({
       startDate: moment()
     }
   },
+  componentWillMount: function(){
+    var results;
+    set_days = function(callback, obj, request_date){
+      axios.post('/events/calendar', {date: request_date})
+        .then(function (res) {
+          results = res.data;
+          current = obj.state.Days;
+          for(var i = 0; i < current.length; i++){
+            var temp = [];
+            for(var u = 0; u < results.length; u++){
+              if(results[u].start_date.substring(8,10) == current[i].day_num){
+                temp.push(results[u]);
+              }
+            }
+            current[i].events = temp;
+          }
+          callback(current, obj);
+        });
+    }
+    callback_function = function(callback, obj){
+        obj.setState({Days: callback});
+    }
+    set_days(callback_function, this, date);
+  },
   handleChange: function(date) {
-    this.calendarChange(date.toDate());
-    this.setState({
-      startDate: date
-    });
+   this.calendarChange(date.toDate());
+   this.setState({
+     startDate: date
+   });
   },
   calendarChange: function(date){
     calendar = Functions.build_calendar(date);
@@ -24,9 +47,28 @@ module.exports = React.createClass({
       Days: calendar.Days,
       Name: calendar.Name
     })
-  },
-  saveEvent: function(data){
-    console.log(data);
+    var results;
+    set_days = function(callback, obj, request_date){
+      axios.post('/events/calendar', {date: request_date})
+        .then(function (res) {
+          results = res.data;
+          current = obj.state.Days;
+          for(var i = 0; i < current.length; i++){
+            var temp = [];
+            for(var u = 0; u < results.length; u++){
+              if(results[u].start_date.substring(8,10) == current[i].day_num){
+                temp.push(results[u]);
+              }
+            }
+            current[i].events = temp;
+          }
+          callback(current, obj);
+        });
+    }
+    callback_function = function(callback, obj){
+        obj.setState({Days: callback});
+    }
+    set_days(callback_function, this, date);
   },
   redirect_month: function(){
     hashHistory.push('/month_view');
@@ -47,11 +89,10 @@ module.exports = React.createClass({
   render: function(){
     return (
       <div id='calendar'>
-        <Modal_Event_Form saveEvent={this.saveEvent} />
         <div className='navigation_container'>
           <div className='col-xs-4'>
               <div className='datepicker_container'>
-                <label>Date</label>
+                <label className='date_label'>Date: </label>
                 <DatePicker selected={this.state.startDate} onChange={this.handleChange} />
               </div>
               <ul>
@@ -73,11 +114,11 @@ module.exports = React.createClass({
           {this.state.Days.map(function(day, i){
               if(day.day_num == 0){
                 return (
-                  <Day  key={i} day_num={day.day_num} display="false"></Day>
+                  <Day events={day.events} key={i} day_num={day.day_num} display="false"></Day>
                 );
               }else{
                 return (
-                  <Day identity={i} key={i} day_num={day.day_num} date={day.date} ></Day>
+                  <Day events={day.events} identity={i} key={i} day_num={day.day_num} date={day.date} ></Day>
                 );
               }
           })}
