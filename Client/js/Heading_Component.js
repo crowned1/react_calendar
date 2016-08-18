@@ -1,3 +1,4 @@
+//enable node export module for heading component
 module.exports = React.createClass({
   render: function(){
     return (

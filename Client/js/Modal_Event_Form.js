@@ -1,4 +1,6 @@
 module.exports = React.createClass({
+
+  //called when the component is to be created
   getInitialState: function() {
     return {
       name: "",
@@ -10,23 +12,43 @@ module.exports = React.createClass({
       start_hour: ''
     };
   },
+
+  //called just before the props are recieved, and the param is the props to be applied
   componentWillReceiveProps: function(nextProps){
-    if(nextProps.hour){this.setState({end_hour: (((parseInt(this.props.hour[0]+this.props.hour[1]))+1).toString())+":00"})}else{this.setState({end_hour: "9:00"})};
-    if(nextProps.hour){this.setState({start_hour: nextProps.hour})}else{this.setState({start_hour: "8:00"})};
+    if(nextProps.hour){
+      //converts the hour into string, and saves it to end_hour state
+      this.setState({end_hour: (((parseInt(this.props.hour[0]+this.props.hour[1]))+1).toString())+":00"})
+    }else{
+      //if there is no hour sent to modal, (saved from calendar view), then default to 9:00
+      this.setState({end_hour: "9:00"})
+    };
+    if(nextProps.hour){
+      //converts the hour into string, and saves it to start_hour state
+      this.setState({start_hour: nextProps.hour})
+    }else{
+      //if there is no hour sent to modal, (saved from calendar view), then default to 8:00
+      this.setState({start_hour: "8:00"})
+    };
     var temp_date;
     if(nextProps.date){
+      //set the start_date and end_date to the date passed from parent
       this.setState({start_date: nextProps.date.toString().substring(0,15)});
       this.setState({end_date: nextProps.date.toString().substring(0,15)});
     }else{
+      //if nothing came from parent, use startdate property instead
       this.setState({start_date: nextProps.start_date.toString().substring(0,15)});
       this.setState({end_date: nextProps.start_date.toString().substring(0,15)});
     }
   },
+
+  //listen for input field changes
   handleChange: function(name, event) {
     var change = {};
     change[name] = event.target.value;
     this.setState(change);
   },
+
+  //render the modal form
   render: function(){
     return (
       <div id='event_modal' className='modal' style={{display: this.props.display}}>
@@ -36,11 +58,11 @@ module.exports = React.createClass({
           <form className='event_form'>
             <div className='form-group'>
               <label>Event Name:</label>
-              <input className='form-control' type='text' value={this.state.name} onChange={this.handleChange.bind(this, 'name')} />
+              <input className='form-control' type='text' value={this.state.name} onChange={this.handleChange.bind(this, 'name')} />{/* each of these is bound to the state, so that they alter the state of the component when they are typed in*/}
             </div>
             <div className='form-group'>
               <label>Event Type:</label>
-              <input id='event_form_event_type' className='form-control' type='text' value={this.props.type} disabled />
+              <input id='event_form_event_type' className='form-control' type='text' value={this.props.type} disabled />{/* these are disabled and inherited by props not state, so they cannot be changed yet*/}
             </div>
             <div className='form-group'>
               <label>Event Color:</label>
@@ -70,6 +92,7 @@ module.exports = React.createClass({
               <label>Event Description:</label>
               <textarea className='form-control' value={this.state.description} onChange={this.handleChange.bind(this, 'description')} />
             </div>
+            {/* gets input fields and passes them to parent through callback prop function then closes the modal, uses es6 syntax to activate both functions at the same time*/}
             <button onClick={() => {this.props.saveEvent({
               name: this.state.name,
               type: this.props.type,

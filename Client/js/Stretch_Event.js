@@ -1,3 +1,4 @@
+//enable node export module for stretch events 
 module.exports = React.createClass({
   render: function(){
       return (
