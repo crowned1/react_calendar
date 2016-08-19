@@ -56855,7 +56855,7 @@
 	    //create hours for array looping 24 times
 	    for (var i = 0; i <= 23; i++) {
 	      hour = i + ":" + "00";
-	      day.push({ hour: hour, date: date.toDateString() });
+	      day.push({ hour: hour, date: date });
 	    }
 	    return {
 	      Current: current,
