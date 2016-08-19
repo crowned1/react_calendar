@@ -250,7 +250,7 @@ module.exports = {
     }
   },
 
-  //run through and add events to the initial state arrays. 
+  //run through and add events to the initial state arrays.
   fill_events_day: function(arr_events){
     var _events1 = [];
     var _events2 = [];

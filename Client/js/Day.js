@@ -62,7 +62,7 @@ module.exports = React.createClass({
 
     //add the event to the day
     events = this.state.Events;
-    events.push({name: data.type, start_date: date_1, end_date: date_2, color: data.color});
+    events.push({name: data.name, start_date: date_1, end_date: date_2, color: data.color});
     this.setState({ Events: events });
   },
 

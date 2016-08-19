@@ -56689,8 +56689,11 @@
 /***/ function(module, exports) {
 
 	module.exports = {
+
+	  //returns the month as a string
 	  get_month: function () {
 	    var d = new Date();
+	    //assign each month as string to corresponding number
 	    var month = new Array();
 	    month[0] = "January";
 	    month[1] = "February";
@@ -56704,9 +56707,11 @@
 	    month[9] = "October";
 	    month[10] = "November";
 	    month[11] = "December";
-	    var n = month[d.getMonth()];
+	    var n = month[d.getMonth()]; //assign month string to n from dates month number
 	    return n;
 	  },
+
+	  //builds a calender array
 	  build_calendar: function (date) {
 	    //set the date to the 1st
 	    var param = date;
@@ -56745,6 +56750,7 @@
 	      calendar_month = "January";
 	    } else if (date_array[1] == "Feb") {
 	      year = parseInt(date_array[3]);
+	      //check if its a leap year
 	      var leapyear = false;
 	      if (year % 4 == 0) {
 	        if (year % 100 == 0) {
@@ -56804,8 +56810,11 @@
 	      Days: calendar
 	    };
 	  },
+
+	  //build a day filled with hours
 	  build_day: function (date) {
-	    var day_number = date.getDate();
+	    var day_number = date.getDate(); //convert moment to date
+	    //assign week name strings to weekday array
 	    var weekday = new Array(7);
 	    weekday[0] = "Sunday";
 	    weekday[1] = "Monday";
@@ -56814,7 +56823,8 @@
 	    weekday[4] = "Thursday";
 	    weekday[5] = "Friday";
 	    weekday[6] = "Saturday";
-	    var day_name = weekday[date.getDay()];
+	    var day_name = weekday[date.getDay()]; //compare day to weekday array to get the weekday string
+	    //assign month name strings to month array
 	    var month = new Array();
 	    month[0] = "January";
 	    month[1] = "February";
@@ -56828,8 +56838,10 @@
 	    month[9] = "October";
 	    month[10] = "November";
 	    month[11] = "December";
-	    var day_month = month[date.getMonth()];
+	    var day_month = month[date.getMonth()]; //compare month to month array to get the month string
 	    var current;
+
+	    //create a string for the name of the day (ie: 1st 2nd 3rd etc)
 	    if (day_number == 1) {
 	      current = day_name + " " + day_month + " " + day_number + "st";
 	    } else if (day_number == 2) {
@@ -56840,6 +56852,7 @@
 	      current = day_name + " " + day_month + " " + day_number + "th";
 	    }
 	    var day = [];
+	    //create hours for array looping 24 times
 	    for (var i = 0; i <= 23; i++) {
 	      hour = i + ":" + "00";
 	      day.push({ hour: hour, date: date.toDateString() });
@@ -56849,69 +56862,85 @@
 	      Hours: day
 	    };
 	  },
+
+	  //convert two hours into style properties
 	  time_to_length: function (start, end) {
+	    //break apart the string example: 8:00 to [8, 00]
 	    start_time = start.split(":");
+	    //convert strings to ints
 	    start_hour = parseInt(start_time[0]);
 	    start_minutes = parseInt(start_time[1]);
-	    measure_top = (start_hour * 60 + start_minutes) / 60 * (100 / 24);
-
-	    end_time = end.split(":");
+	    //converts the two ints into a measurement for top margin.
+	    measure_top = (start_hour * 60 + start_minutes) / 60 * (100 / 24); // ((convert hour to minutes) add minutes)/divide by 60 to get hours(multiply by 100percent/24hours), this gives you the percent from the top that this event should be based on the 24 hours in the day
+	    end_time = end.split(":"); //break apart string
+	    //convert strings to ints
 	    end_hour = parseInt(end_time[0]);
 	    end_minutes = parseInt(end_time[1]);
+	    //convert two ints into the height of the event in realtion to the 24 hour day
 	    height = ((end_hour - start_hour) * 60 + (end_minutes - start_minutes)) / 60 * (100 / 24);
-
 	    return {
 	      top: measure_top,
 	      height: height
 	    };
 	  },
+
+	  //check if there is a div in the way of the projected event placement
 	  collision_detection: function (current, new_event) {
+	    //loops through each of the current events on the day
 	    for (var i = 0; i < current.length; i++) {
-	      current_height = parseInt(current[i].height.substring(0, current[i].height.length - 1));
-	      current_top = parseInt(current[i].top.substring(0, current[i].top.length - 1));
-	      current_bottom = current_top + current_height;
-	      new_bottom = new_event.top + new_event.height;
+	      current_height = parseInt(current[i].height.substring(0, current[i].height.length - 1)); //gets the current height of event
+	      current_top = parseInt(current[i].top.substring(0, current[i].top.length - 1)); //gets the current top margin of event
+	      current_bottom = current_top + current_height; //gets the current bottom of div event
+	      new_bottom = new_event.top + new_event.height; // gets the new events bottom of div
+	      //checks if the new divs top runs inbetween the top and bottom of the current div, if so there is a collision
 	      if (new_event.top >= current_top && new_event.top < current_bottom) {
 	        return false;
+	        //checks if the bottom of the new div is below the top of the current div, if so there is a collision
 	      } else if (new_bottom < current_top) {
 	        return false;
 	      }
 	    }
+	    //no collisions
 	    return true;
 	  },
+
+	  //function decides which row the new event will be placed in
 	  place_event: function (event1, event2, event3, event4, event5, style, data) {
 	    var event_rows = [event1, event2, event3, event4, event5];
+	    //if the first row of the day has no events, just place it there
 	    if (event_rows[0].length == 0) {
 	      events = event_rows[0];
 	      events.push({ name: data.type, color: data.color, height: style.height + "%", top: style.top + "%" });
 	      return { events: events, row_num: 1 };
 	    } else {
 	      row_num = 0;
+	      //loop through the rows and find a place for the new event
 	      for (var z = 0; z < event_rows.length; z++) {
 	        row_num++;
+	        //if there is nothing in a row, just place it there
 	        if (event_rows[z].length == 0) {
 	          events = event_rows[z];
 	          events.push({ name: data.type, color: data.color, height: style.height + "%", top: style.top + "%" });
 	          return { events: events, row_num: row_num };
+	          //if there is no collisions for where the new div wants to go, just place it there.
 	        } else if (this.collision_detection(event_rows[z], style)) {
 	          console.log(events);
 	          events = event_rows[z];
 	          events.push({ name: data.type, color: data.color, height: style.height + "%", top: style.top + "%" });
 	          return { events: events, row_num: row_num };
 	        }
+	        //if it didnt find an empty slot, and had a collision, try the next row-- (if all the rows are filled, the event will not be placed)
 	      }
 	    }
 	  },
+
+	  //run through and add events to the initial state arrays.
 	  fill_events_day: function (arr_events) {
-	    //variable being declared for the first time, no other variables with the same name anywhere else in code.
 	    var _events1 = [];
 	    var _events2 = [];
 	    var _events3 = [];
 	    var _events4 = [];
 	    var _events5 = [];
-	    //checking to make sure its declared correctly
-	    console.log(_events1);
-	    //its already got an infinite loop of objects in it??
 	    for (var x = 0; x < arr_events.length; x++) {
 	      style = Functions.time_to_length(arr_events[x].start_hour, arr_events[x].end_hour);
 	      results = Functions.place_event(_events1, _events2, _events3, _events4, _events5, style, arr_events[x]);
@@ -56928,14 +56957,14 @@
 	      }
 	    }
 	    return { event1: _events1, event2: _events2, event3: _events3, event4: _events4, event5: _events5 };
-	  },
-	  fill_events_month: function (arr_events) {}
+	  }
 	};
 
 /***/ },
 /* 470 */
 /***/ function(module, exports) {
 
+	//enable node export module for heading component
 	module.exports = React.createClass({
 	  displayName: 'exports',
 
@@ -56970,15 +56999,20 @@
 /* 471 */
 /***/ function(module, exports, __webpack_require__) {
 
+	// IMPORTS
 	var Hour = __webpack_require__(472);
 	var Functions = __webpack_require__(469);
 	var Stretch_Event = __webpack_require__(475);
 
+	//make available with node exports
 	module.exports = React.createClass({
 	  displayName: 'exports',
 
+
+	  //called when component is created
 	  getInitialState: function () {
 	    date = new Date();
+	    //use imported functions.js to build a day filled with hours
 	    day = Functions.build_day(date);
 	    return {
 	      current_day: day.Current,
@@ -56991,10 +57025,17 @@
 	      events_5: []
 	    };
 	  },
+
+	  //called after the component rendered
 	  componentDidMount: function () {
+
+	    //adds events to the day
 	    update_events = function (data, state) {
+	      //transform the start and end string into a style for the event div
 	      style = Functions.time_to_length(data.start_hour, data.end_hour);
+	      //decide where the events should be placed to avoid collisions
 	      results = Functions.place_event(state.state.events_1, state.state.events_2, state.state.events_3, state.state.events_4, state.state.events_5, style, data);
+	      //place the div in the correct row, assigned in the place event function
 	      if (results.row_num == 1) {
 	        state.setState({ events_1: results.events });
 	      } else if (results.row_num == 2) {
@@ -57008,22 +57049,23 @@
 	      }
 	    };
 	    populate_events = function (callback, state) {
+	      //look through each event from the server response
 	      for (var k = 0; k < callback.length; k++) {
-	        console.log('here');
+	        //add the event to the day
 	        update_events(callback[k], state);
 	      }
 	    };
 	    get_response = function (callback, state, request_date) {
-	      console.log(request_date);
+	      //request the events from the server
 	      axios.post('/events/day', { date: request_date }).then(function (res) {
-	        console.log(res.data);
 	        callback(res.data, state);
 	      });
 	    };
 	    get_response(populate_events, this, date);
 	  },
+
 	  dateChange: function (date) {
-	    day = Functions.build_day(date);
+	    day = Functions.build_day(date); //build new day and populate it with hours
 	    this.setState({
 	      current_day: day.Current,
 	      day: day.Hours,
@@ -57033,6 +57075,8 @@
 	      events_4: [],
 	      events_5: []
 	    });
+
+	    //fill day with events, see componentdidmount
 	    update_events = function (data, state) {
 	      style = Functions.time_to_length(data.start_hour, data.end_hour);
 	      results = Functions.place_event(state.state.events_1, state.state.events_2, state.state.events_3, state.state.events_4, state.state.events_5, style, data);
@@ -57051,47 +57095,59 @@
 	    };
 	    populate_events = function (callback, state) {
 	      for (var k = 0; k < callback.length; k++) {
-	        console.log('here');
 	        update_events(callback[k], state);
 	      }
 	    };
 	    get_response = function (callback, state, request_date) {
-	      console.log(request_date);
 	      axios.post('/events/day', { date: request_date }).then(function (res) {
-	        console.log(res.data);
 	        callback(res.data, state);
 	      });
 	    };
 	    get_response(populate_events, this, date);
 	  },
+
+	  //on calendar date change with datepicker
 	  handleChange: function (date) {
 	    this.dateChange(date.toDate());
 	    this.setState({
 	      startDate: date
 	    });
 	  },
+
+	  //reroute to month view
 	  redirect_month: function () {
 	    hashHistory.push('/month_view');
 	  },
+
+	  //reroute to day view (since it is already day view, consider disabling this?)
 	  redirect_day: function () {
 	    hashHistory.push('/day_view');
 	  },
+
+	  //load previous day
 	  previous_day: function () {
-	    prev_day = this.state.startDate.subtract(1, 'day');
+	    prev_day = this.state.startDate.subtract(1, 'day'); //use moment object to subtract a day
 	    this.setState({ startDate: prev_day });
-	    this.dateChange(prev_day.toDate());
+	    this.dateChange(prev_day.toDate()); //convert moment object into date object
 	  },
+
+	  //load next day
 	  next_day: function () {
-	    next_day = this.state.startDate.add(1, 'day');
+	    next_day = this.state.startDate.add(1, 'day'); //use moment object to add a day
 	    this.setState({ startDate: next_day });
-	    this.dateChange(next_day.toDate());
+	    this.dateChange(next_day.toDate()); //convert moment obj to date object
 	  },
+
+	  //save event to database, and add the event to the view
 	  saveEvent: function (data) {
 
+	    //save event to db
 	    axios.post('/event', { data }).then(function (response) {
+	      //should get an object back that says success
 	      console.log(response);
 	    });
 
+	    //see componentdidmount
 	    style = Functions.time_to_length(data.start_hour, data.end_hour);
 	    results = Functions.place_event(this.state.events_1, this.state.events_2, this.state.events_3, this.state.events_4, this.state.events_5, style, data);
 	    if (results.row_num == 1) {
@@ -57106,6 +57162,8 @@
 	      this.setState({ events_5: results.events });
 	    }
 	  },
+
+	  //render the day component
 	  render: function () {
 	    return React.createElement(
 	      'div',
@@ -57134,6 +57192,7 @@
 	              { onClick: this.redirect_month },
 	              'Month'
 	            ),
+	            ' ',
 	            React.createElement(
 	              'li',
 	              { onClick: this.redirect_day },
@@ -57168,8 +57227,10 @@
 	        'div',
 	        { className: 'day_view_container' },
 	        this.state.day.map(function (hour, i) {
+	          {/* If the hour is 0:00 then it will not be displayed (this is because it is positioned at the edge of the top of the div, and the text would be cut off) */}
 	          if (hour.hour == "0:00") {
 	            return React.createElement(Hour, { hour_zero: 'true', saveEvent: this.saveEvent, key: i, current: hour.date, hour: hour.hour });
+	            {/* Create hour component will props passed to it */}
 	          } else {
 	            return React.createElement(Hour, { saveEvent: this.saveEvent, key: i, current: hour.date, hour: hour.hour });
 	          }
@@ -57243,34 +57304,50 @@
 /* 472 */
 /***/ function(module, exports, __webpack_require__) {
 
+	// IMPORTS
 	var Modal_Event_Form = __webpack_require__(473);
 	var Event = __webpack_require__(474);
 
+	//enable node module exports for Hour components
 	module.exports = React.createClass({
 	  displayName: 'exports',
 
+
+	  //called when the component is to be created
 	  getInitialState: function () {
 	    return {
 	      modal: "none",
 	      hour: this.props.hour
 	    };
 	  },
+
+	  //prevent default events on drag
 	  handleDragOver: function (e) {
 	    e.preventDefault();
 	  },
+
+	  //listens for drop event
 	  handleOnDrop: function (e) {
+	    //prevent default events from triggering
 	    e.preventDefault();
-	    this.setState({ modal: "block" });
+	    this.setState({ modal: "block" }); //show modal form popup
 	    this.state.color = e.dataTransfer.getData("bgColor");
 	    this.state.type = e.dataTransfer.getData("type");
 	  },
+
+	  //hide modal form
 	  close_modal: function (e) {
 	    this.setState({ modal: "none" });
 	  },
+
+	  //saveEvent inherited from the parent component
 	  saveEvent: function (data) {
 	    this.props.saveEvent(data);
 	  },
+
+	  //create component
 	  render: function () {
+	    //if its the first hour of the day, do not show the hour (this is because it will be located inbetween two divs, and will be cut in half 0:00 can be implied)
 	    if (this.props.hour_zero == "true") {
 	      return React.createElement(
 	        'div',
@@ -57282,6 +57359,7 @@
 	          this.props.hour
 	        )
 	      );
+	      //renders both the hour, and the corresponding hidden modal
 	    } else {
 	      return React.createElement(
 	        'div',
@@ -57302,167 +57380,209 @@
 /***/ function(module, exports) {
 
 	module.exports = React.createClass({
-	  displayName: 'exports',
+	  displayName: "exports",
 
+
+	  //called when the component is to be created
 	  getInitialState: function () {
 	    return {
 	      name: "",
-	      start_date: '',
-	      end_date: '',
+	      start_date: moment(),
+	      end_date: moment(),
 	      end_hour: '',
 	      location: "",
 	      description: "",
 	      start_hour: ''
 	    };
 	  },
+
+	  //called just before the props are recieved, and the param is the props to be applied
 	  componentWillReceiveProps: function (nextProps) {
 	    if (nextProps.hour) {
+	      //converts the hour into string, and saves it to end_hour state
 	      this.setState({ end_hour: (parseInt(this.props.hour[0] + this.props.hour[1]) + 1).toString() + ":00" });
 	    } else {
+	      //if there is no hour sent to modal, (saved from calendar view), then default to 9:00
 	      this.setState({ end_hour: "9:00" });
 	    };
 	    if (nextProps.hour) {
+	      //converts the hour into string, and saves it to start_hour state
 	      this.setState({ start_hour: nextProps.hour });
 	    } else {
+	      //if there is no hour sent to modal, (saved from calendar view), then default to 8:00
 	      this.setState({ start_hour: "8:00" });
 	    };
 	    var temp_date;
 	    if (nextProps.date) {
-	      this.setState({ start_date: nextProps.date.toString().substring(0, 15) });
-	      this.setState({ end_date: nextProps.date.toString().substring(0, 15) });
+	      //set the start_date and end_date to the date passed from parent
+	      this.setState({ start_date: moment(nextProps.date) });
+	      this.setState({ end_date: moment(nextProps.date) });
 	    } else {
-	      this.setState({ start_date: nextProps.start_date.toString().substring(0, 15) });
-	      this.setState({ end_date: nextProps.start_date.toString().substring(0, 15) });
+	      //if nothing came from parent, use startdate property instead
+	      this.setState({ start_date: moment(nextProps.start_date) });
+	      this.setState({ end_date: moment(nextProps.start_date) });
 	    }
 	  },
+
+	  //listen for input field changes
 	  handleChange: function (name, event) {
 	    var change = {};
 	    change[name] = event.target.value;
 	    this.setState(change);
 	  },
+
+	  //handle calendar picker change for start date input
+	  handleStartDateChange: function (date) {
+	    this.setState({
+	      start_date: date
+	    });
+	  },
+
+	  //handle calendar picker change for end date input
+	  handleEndDateChange: function (date) {
+	    this.setState({
+	      end_date: date
+	    });
+	  },
+
+	  //render the modal form
 	  render: function () {
 	    return React.createElement(
-	      'div',
-	      { id: 'event_modal', className: 'modal', style: { display: this.props.display } },
+	      "div",
+	      { id: "event_modal", className: "modal", style: { display: this.props.display } },
 	      React.createElement(
-	        'div',
-	        { className: 'event_modal_form' },
+	        "div",
+	        { className: "event_modal_form" },
 	        React.createElement(
-	          'span',
-	          { onClick: this.props.close_modal, className: 'close' },
-	          'X'
+	          "span",
+	          { onClick: this.props.close_modal, className: "close" },
+	          "X"
 	        ),
 	        React.createElement(
-	          'span',
-	          { className: 'model_header' },
-	          'Create Event'
+	          "span",
+	          { className: "model_header" },
+	          "Event Editor"
 	        ),
 	        React.createElement(
-	          'form',
-	          { className: 'event_form' },
+	          "form",
+	          { className: "event_form" },
 	          React.createElement(
-	            'div',
-	            { className: 'form-group' },
+	            "div",
+	            { className: "col-xs-6" },
 	            React.createElement(
-	              'label',
-	              null,
-	              'Event Name:'
+	              "div",
+	              { className: "form-group" },
+	              React.createElement(
+	                "label",
+	                null,
+	                "Event Name:"
+	              ),
+	              React.createElement("input", { className: "form-control", type: "text", value: this.state.name, onChange: this.handleChange.bind(this, 'name') })
 	            ),
-	            React.createElement('input', { className: 'form-control', type: 'text', value: this.state.name, onChange: this.handleChange.bind(this, 'name') })
+	            React.createElement(
+	              "div",
+	              { className: "form-group" },
+	              React.createElement(
+	                "label",
+	                null,
+	                "Event Type:"
+	              ),
+	              React.createElement("input", { id: "event_form_event_type", className: "form-control", type: "text", value: this.props.type, disabled: true })
+	            ),
+	            React.createElement(
+	              "div",
+	              { className: "form-group" },
+	              React.createElement(
+	                "label",
+	                null,
+	                "Event Color:"
+	              ),
+	              React.createElement("input", { id: "event_form_event_color", className: "form-control", type: "text", value: this.props.color, disabled: true })
+	            ),
+	            React.createElement(
+	              "div",
+	              { className: "form-group" },
+	              React.createElement(
+	                "label",
+	                null,
+	                "Start Date:"
+	              ),
+	              React.createElement(DatePicker, { className: "modal_date_picker",
+	                dateFormat: "MM/DD/YYYY",
+	                selected: this.state.start_date,
+	                onChange: this.handleStartDateChange })
+	            ),
+	            React.createElement(
+	              "div",
+	              { className: "form-group" },
+	              React.createElement(
+	                "label",
+	                null,
+	                "Start Time:"
+	              ),
+	              React.createElement("input", { id: "event_form_event_hour", className: "form-control", type: "text", value: this.state.start_hour, onChange: this.handleChange.bind(this, 'start_hour') })
+	            )
 	          ),
 	          React.createElement(
-	            'div',
-	            { className: 'form-group' },
+	            "div",
+	            { className: "col-xs-6" },
 	            React.createElement(
-	              'label',
-	              null,
-	              'Event Type:'
+	              "div",
+	              { className: "form-group" },
+	              React.createElement(
+	                "label",
+	                null,
+	                "End Date:"
+	              ),
+	              React.createElement(DatePicker, { className: "modal_date_picker",
+	                dateFormat: "MM/DD/YYYY",
+	                selected: this.state.end_date,
+	                onChange: this.handleEndDateChange })
 	            ),
-	            React.createElement('input', { id: 'event_form_event_type', className: 'form-control', type: 'text', value: this.props.type, disabled: true })
-	          ),
-	          React.createElement(
-	            'div',
-	            { className: 'form-group' },
 	            React.createElement(
-	              'label',
-	              null,
-	              'Event Color:'
+	              "div",
+	              { className: "form-group" },
+	              React.createElement(
+	                "label",
+	                null,
+	                "End Hour:"
+	              ),
+	              React.createElement("input", { id: "event_form_event_end", className: "form-control", type: "text", value: this.state.end_hour, onChange: this.handleChange.bind(this, 'end_hour') })
 	            ),
-	            React.createElement('input', { id: 'event_form_event_color', className: 'form-control', type: 'text', value: this.props.color, disabled: true })
-	          ),
-	          React.createElement(
-	            'div',
-	            { className: 'form-group' },
 	            React.createElement(
-	              'label',
-	              null,
-	              'Start Date:'
+	              "div",
+	              { className: "form-group" },
+	              React.createElement(
+	                "label",
+	                null,
+	                "Event Location:"
+	              ),
+	              React.createElement("input", { className: "form-control", type: "text", value: this.state.location, onChange: this.handleChange.bind(this, 'location') })
 	            ),
-	            React.createElement('input', { id: 'event_form_event_start', className: 'form-control', type: 'text', value: this.state.start_date, onChange: this.handleChange.bind(this, 'start_date') })
-	          ),
-	          React.createElement(
-	            'div',
-	            { className: 'form-group' },
 	            React.createElement(
-	              'label',
-	              null,
-	              'Start Time:'
-	            ),
-	            React.createElement('input', { id: 'event_form_event_hour', className: 'form-control', type: 'text', value: this.state.start_hour, onChange: this.handleChange.bind(this, 'start_hour') })
+	              "div",
+	              { className: "form-group" },
+	              React.createElement(
+	                "label",
+	                null,
+	                "Event Description:"
+	              ),
+	              React.createElement("textarea", { className: "form-control", value: this.state.description, onChange: this.handleChange.bind(this, 'description') })
+	            )
 	          ),
-	          React.createElement(
-	            'div',
-	            { className: 'form-group' },
-	            React.createElement(
-	              'label',
-	              null,
-	              'End Date:'
-	            ),
-	            React.createElement('input', { id: 'event_form_event_end', className: 'form-control', type: 'text', value: this.state.end_date, onChange: this.handleChange.bind(this, 'end_date') })
-	          ),
-	          React.createElement(
-	            'div',
-	            { className: 'form-group' },
-	            React.createElement(
-	              'label',
-	              null,
-	              'End Hour:'
-	            ),
-	            React.createElement('input', { id: 'event_form_event_end', className: 'form-control', type: 'text', value: this.state.end_hour, onChange: this.handleChange.bind(this, 'end_hour') })
-	          ),
-	          React.createElement(
-	            'div',
-	            { className: 'form-group' },
-	            React.createElement(
-	              'label',
-	              null,
-	              'Event Location:'
-	            ),
-	            React.createElement('input', { className: 'form-control', type: 'text', value: this.state.location, onChange: this.handleChange.bind(this, 'location') })
-	          ),
-	          React.createElement(
-	            'div',
-	            { className: 'form-group' },
-	            React.createElement(
-	              'label',
-	              null,
-	              'Event Description:'
-	            ),
-	            React.createElement('textarea', { className: 'form-control', value: this.state.description, onChange: this.handleChange.bind(this, 'description') })
-	          ),
-	          React.createElement('button', { onClick: () => {
+	          React.createElement("button", { onClick: () => {
 	              this.props.saveEvent({
 	                name: this.state.name,
 	                type: this.props.type,
 	                color: this.props.color,
-	                start_date: this.state.start_date,
+	                start_date: this.state.start_date.toDate().toString().substring(0, 15),
 	                start_hour: this.state.start_hour,
-	                end_date: this.state.end_date,
+	                end_date: this.state.end_date.toDate().toString().substring(0, 15),
 	                end_hour: this.state.end_hour,
 	                location: this.state.location,
 	                description: this.state.description
 	              });this.props.close_modal();
-	            }, type: 'button', className: 'btn btn-primary glyphicon glyphicon-save' })
+	            }, type: "button", className: "btn btn-primary glyphicon glyphicon-save" })
 	        )
 	      )
 	    );
@@ -57473,10 +57593,14 @@
 /* 474 */
 /***/ function(module, exports) {
 
+	// enable node exports for event
 	module.exports = React.createClass({
 	  displayName: 'exports',
 
+
+	  //render event
 	  render: function () {
+	    //check if the day property was sent to this component and then render if true
 	    if (this.props.view == 'day') {
 	      return React.createElement(
 	        'div',
@@ -57496,6 +57620,7 @@
 /* 475 */
 /***/ function(module, exports) {
 
+	//enable node export module for stretch events 
 	module.exports = React.createClass({
 	  displayName: 'exports',
 
@@ -57516,56 +57641,81 @@
 /* 476 */
 /***/ function(module, exports, __webpack_require__) {
 
+	// IMPORTS
 	var Day = __webpack_require__(477);
 	var Functions = __webpack_require__(469);
 
+	// Make available via node exports
 	module.exports = React.createClass({
 	  displayName: 'exports',
 
+
+	  //function called as soon as parent is done creating the component
 	  getInitialState: function () {
 	    date = new Date();
+	    //build out calendar with function from functions.js file passing in current date
 	    calendar = Functions.build_calendar(date);
+	    //set initial state of calendar object with built calendar
 	    return {
 	      Days: calendar.Days,
 	      Name: calendar.Name,
+	      //use moment.js to create a moment object
 	      startDate: moment()
 	    };
 	  },
+
+	  //function called right before the component is rendered
 	  componentWillMount: function () {
 	    var results;
+	    //set days function will add the events to the day based on day of the month
 	    set_days = function (callback, obj, request_date) {
+	      console.log(request_date);
+	      //request events from calendar using date param
 	      axios.post('/events/calendar', { date: request_date }).then(function (res) {
-	        results = res.data;
-	        current = obj.state.Days;
+	        results = res.data; //events array
+	        current = obj.state.Days; //obj is component (this)
+	        //look through all days
 	        for (var i = 0; i < current.length; i++) {
 	          var temp = [];
+	          //look through all events
 	          for (var u = 0; u < results.length; u++) {
+	            //if the day of the month for an event matches the day of the month for a day, push to temp array
 	            if (results[u].start_date.substring(8, 10) == current[i].day_num) {
 	              temp.push(results[u]);
 	            }
 	          }
+	          //set temp array as new key in the day object
 	          current[i].events = temp;
 	        }
+	        //send the modified state.Days object into callback
 	        callback(current, obj);
 	      });
 	    };
 	    callback_function = function (callback, obj) {
+	      //set the new state of Days to the modified state.Days object
 	      obj.setState({ Days: callback });
 	    };
-	    set_days(callback_function, this, date);
+
+	    set_days(callback_function, this, this.state.startDate.toDate());
 	  },
+
+	  //calendar date change function
 	  handleChange: function (date) {
-	    this.calendarChange(date.toDate());
+	    this.calendarChange(date.toDate()); //convert the moment object into a date object
 	    this.setState({
 	      startDate: date
 	    });
 	  },
+
+	  //builds out new calendar and populates it with events
 	  calendarChange: function (date) {
 	    calendar = Functions.build_calendar(date);
 	    this.setState({
 	      Days: calendar.Days,
 	      Name: calendar.Name
 	    });
+
+	    //see component will mount for comments
 	    var results;
 	    set_days = function (callback, obj, request_date) {
 	      axios.post('/events/calendar', { date: request_date }).then(function (res) {
@@ -57586,24 +57736,34 @@
 	    callback_function = function (callback, obj) {
 	      obj.setState({ Days: callback });
 	    };
-	    set_days(callback_function, this, date);
+	    set_days(callback_function, this, this.state.startDate.toDate());
 	  },
+
+	  //Reroute to month view
 	  redirect_month: function () {
-	    hashHistory.push('/month_view');
+	    hashHistory.push('/month_view'); //change url and save it to hashHistory
 	  },
+
+	  //Reroute to day view
 	  redirect_day: function () {
 	    hashHistory.push('/day_view');
 	  },
+
+	  //load previous month calendar
 	  previous_month: function () {
-	    prev_month = this.state.startDate.subtract(1, 'M');
+	    prev_month = this.state.startDate.subtract(1, 'M'); //use moment object to subtract a month
 	    this.setState({ startDate: prev_month });
-	    this.calendarChange(prev_month.toDate());
+	    this.calendarChange(prev_month.toDate()); //convert the moment to date object
 	  },
+
+	  //load next month calendar
 	  next_month: function () {
-	    next_month = this.state.startDate.add(1, 'M');
+	    next_month = this.state.startDate.add(1, 'M'); //use moment object to add month
 	    this.setState({ startDate: next_month });
-	    this.calendarChange(next_month.toDate());
+	    this.calendarChange(next_month.toDate()); //convert moment into a date object
 	  },
+
+	  //called after component will mount, renders view for user
 	  render: function () {
 	    return React.createElement(
 	      'div',
@@ -57666,8 +57826,10 @@
 	        'div',
 	        { className: 'calendar_container' },
 	        this.state.Days.map(function (day, i) {
+	          {/* if the day is a non day of month, create it with display false */}
 	          if (day.day_num == 0) {
 	            return React.createElement(Day, { events: day.events, key: i, day_num: day.day_num, display: 'false' });
+	            {/* otherwise, create the day component passing along props */}
 	          } else {
 	            return React.createElement(Day, { events: day.events, identity: i, key: i, day_num: day.day_num, date: day.date });
 	          }
@@ -57681,12 +57843,16 @@
 /* 477 */
 /***/ function(module, exports, __webpack_require__) {
 
+	// IMPORTS
 	var Event = __webpack_require__(474);
 	var Modal_Event_Form = __webpack_require__(473);
 
+	//make day available with node export
 	module.exports = React.createClass({
 	  displayName: 'exports',
 
+
+	  //called when component is to be created
 	  getInitialState: function () {
 	    date_1 = new Date();
 	    date_2 = new Date();
@@ -57695,38 +57861,63 @@
 	      modal: "none"
 	    };
 	  },
+
+	  //called just before props are added to component, the param is the props to be added
 	  componentWillReceiveProps: function (nextProps) {
 	    if (nextProps.events) {
+	      //assign the properties to the state of the object
 	      this.setState({
 	        Events: nextProps.events
 	      });
 	    }
 	  },
+
+	  //prevent events from triggering when dragging an element
 	  handleDragOver: function (e) {
 	    e.preventDefault();
 	  },
+
+	  //listen for drop element
 	  handleOnDrop: function (e) {
+	    //prevent any other events from firing
 	    e.preventDefault();
+	    //display the modal form
 	    this.setState({ modal: "block" });
+	    //get properties of the event that was dragged
 	    this.state.color = e.dataTransfer.getData("bgColor");
 	    this.state.type = e.dataTransfer.getData("type");
 	  },
+
+	  //hide modal
 	  close_modal: function (e) {
 	    this.setState({ modal: "none" });
 	  },
-	  saveEvent: function (data) {
-	    this.setState({ modal: "none" });
 
+	  //save the event
+	  saveEvent: function (data) {
+
+	    //IMPORTANT: this function is passed to the modal component and called back to the day. This means when the data comes back, it is actually called from the modal event forms save button. not from this day object.
+
+	    //hide modal
+	    this.setState({ modal: "none" });
+	    //send data to db to be saved
 	    axios.post('/event', { data }).then(function (response) {
+	      //should get a success response
 	      console.log(response);
 	    });
 
+	    //add the event to the day
 	    events = this.state.Events;
-	    events.push({ name: data.type, start_date: date_1, end_date: date_2, color: data.color });
+	    events.push({ name: data.name, start_date: date_1, end_date: date_2, color: data.color });
 	    this.setState({ Events: events });
 	  },
+
+	  //called last, renders day, and renders modal as a hidden component
 	  render: function () {
-	    if (this.props.display == "false") {
+	    if (
+
+	    //if its not a day of the month, hide this day
+	    this.props.display == "false") {
 	      return React.createElement(
 	        'div',
 	        { className: 'day' },
@@ -57737,6 +57928,7 @@
 	        ),
 	        React.createElement('div', { id: 'event_container' })
 	      );
+	      //render day, and alongside it will be the hidden modal corresponding to the day.
 	    } else {
 	      return React.createElement(
 	        'div',
@@ -57759,16 +57951,23 @@
 /* 478 */
 /***/ function(module, exports, __webpack_require__) {
 
+	// IMPORTS
 	var Color_Selector = __webpack_require__(479);
 
+	//enable node exports for event selector component
 	module.exports = React.createClass({
 	  displayName: 'exports',
 
+
+	  //called when component is called to be created
 	  getInitialState: function () {
+	    // list of all the premade event types and colors
 	    return {
 	      Colors: [{ color: '#B7472C', type: 'Exercise' }, { color: '#2658B5', type: 'Eat' }, { color: '#4E9642', type: 'Sleep' }, { color: '#D6D335', type: 'Vacation' }, { color: '#DD8E39', type: 'Meditation' }, { color: '#8035D6', type: 'Bill' }]
 	    };
 	  },
+
+	  //render component, building the color selector
 	  render: function () {
 	    return React.createElement(
 	      'div',
@@ -57787,10 +57986,15 @@
 	module.exports = React.createClass({
 	  displayName: "exports",
 
+
+	  //when the color is dragged
 	  handleOnDrag: function (e) {
+	    //save the properties of that dragged element
 	    e.dataTransfer.setData("bgColor", this.props.bgColor);
 	    e.dataTransfer.setData("type", this.props.type);
 	  },
+
+	  //render Color Selector (the colored circles)
 	  render: function () {
 	    var divStyle = {
 	      backgroundColor: this.props.bgColor

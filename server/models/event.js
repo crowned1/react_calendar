@@ -7,8 +7,8 @@ var EventSchema = new mongoose.Schema({
 	end_date: {type: String, required: true},
 	end_hour: {type: String, required: true},
 	color: {type: String, required: true},
-	location: {type: String, required: true},
-	description: {type: String, required: true}
+	location: {type: String},
+	description: {type: String}
 
 }, {timestamps: true});
 

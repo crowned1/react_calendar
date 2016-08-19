@@ -24,6 +24,7 @@ module.exports = React.createClass({
     var results;
     //set days function will add the events to the day based on day of the month
     set_days = function(callback, obj, request_date){
+      console.log(request_date);
       //request events from calendar using date param
       axios.post('/events/calendar', {date: request_date}).then(function (res) {
         results = res.data;//events array
@@ -50,7 +51,7 @@ module.exports = React.createClass({
         obj.setState({Days: callback});
     }
 
-    set_days(callback_function, this, date);
+    set_days(callback_function, this, this.state.startDate.toDate());
   },
 
   //calendar date change function
@@ -90,7 +91,7 @@ module.exports = React.createClass({
     callback_function = function(callback, obj){
       obj.setState({Days: callback});
     }
-    set_days(callback_function, this, date);
+    set_days(callback_function, this, this.state.startDate.toDate());
   },
 
   //Reroute to month view
